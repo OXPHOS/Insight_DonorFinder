@@ -257,11 +257,11 @@ With analysis, the scripts will output two files:
 
 One can run the scripts with test data in root folder by:
 
-`./run.sh`
+`root~$ ./run.sh`
 
 Or run the srcipts with (s)he's own dataset by:
 
-`./run.sh path/to/input/file path/to/medianvals_by_zip/output/file path/to/medianvals_by_date/output/file`
+`root~$ ./run.sh path/to/input/file path/to/medianvals_by_zip/output/file path/to/medianvals_by_date/output/file`
 
 ??????Python 2.x or Python 3.x is required
 

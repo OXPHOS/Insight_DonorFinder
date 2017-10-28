@@ -39,7 +39,7 @@ class nodeBase(object):
     def __le__(self, other):
         return not self.key_idx <= other.key_idx
 
-class nodeID(nodeBase):
+class nodeByID(nodeBase):
     """
     Structure that saves information of each recipient
         - self.key: string, id Cxxxxxxxxx
@@ -58,7 +58,7 @@ class nodeID(nodeBase):
         nodeBase.__init__(self, left, right)
         self.key = id
         self.key_idx = int(self._key[1:])
-        self.val = BSTree(nodeDate(date, info_by_date))
+        self.val = BSTree(nodeByDate(date, info_by_date))
 
     def update_node(self, node):
         """
@@ -68,7 +68,7 @@ class nodeID(nodeBase):
         """
         self.val.update_tree(node.val)
 
-class nodeDate(nodeBase):
+class nodeByDate(nodeBase):
     """
     Structure that saves donation information from different dates 
     to specific recipient 

@@ -3,7 +3,7 @@ from FECDate import *
 from Info import infoIndividual
 from lib import *
 from linkedListNode import linkedListNode
-from BSTree import BSTree, nodeID
+from BSTree import BSTree, nodeByID
 
 
 def stream_input(filename):
@@ -152,8 +152,8 @@ if __name__ == "__main__":
         # add to transaction date output file
         if line['TRANSACTION_DT']:
             # construct new infoBSTree node from information in infoDB
-            new_node = nodeID(info.get_id(), info.get_date(),
-                              info.get_date_dict_entry[line['TRANSACTION_DT']])
+            new_node = nodeByID(info.get_id(), info.get_date(),
+                                info.get_date_dict_entry[line['TRANSACTION_DT']])
             infoBSTree.update(new_node)
             fileout_date.writelines(infoBSTree.output_tree_inorder())
 
