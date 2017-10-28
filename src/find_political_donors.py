@@ -5,7 +5,8 @@ from lib import *
 from linkedListNode import linkedListNode
 from BSTree import BSTree, nodeID
 
-def _stream_input(filename):
+
+def stream_input(filename):
     """
     Stream input file line by line
     Yield valid data lines
@@ -17,12 +18,12 @@ def _stream_input(filename):
              
     """
     try:
-        file = open(INPUT_PATH+filename, 'rb')
+        file = open(filename, 'r')
 
         # Iterate the file till the end of the file
         while True:
             line = file.readline()
-            if line == '\n' or '':
+            if line in ['\n', '', ' ']:
                 break
 
             entries = line.split('|')
@@ -50,7 +51,8 @@ def _stream_input(filename):
             # Validate extracted information
             # Validate the format of CMTE_ID
             if not extracted_info['CMTE_ID'][0] is 'C' or \
-                    not extracted_info['CMTE_ID'][1:].isdigit():
+                    not extracted_info['CMTE_ID'][1:].isdigit() or \
+                    len(extracted_info['CMTE_ID']) != 9:
                 continue
 
             # Validate that the transaction amount
@@ -76,11 +78,13 @@ def _stream_input(filename):
 
             yield extracted_info
 
+        file.close()
+
     except IOError:
         print("File not found")
 
 
-def _update_info_database(line):
+def update_info_database(line):
     """
     Take the line streamed in, update information database with key: 
     id of the recipient of current donation
@@ -106,11 +110,18 @@ def _update_info_database(line):
 if __name__ == "__main__":
 
     # Argument parser
-    # If no arg: read all files from ../input
-    # else: input file number and file name. The files must be in ../input folder
+    # TODO: allow default input and output path
     parser = argparse.ArgumentParser()
-    #inputnumber
-    inputs = '../input/donor_dataset_1' # Please put files in /inputs and only specify filename here
+    parser.add_argument("input", type=str, help="path to input file")
+    parser.add_argument("output_by_zip", type=str, help=\
+        "path to output: medianvals_by_zip" )
+    parser.add_argument("output_by_date", type=str, help=\
+        "path to output: medianvals_by_date" )
+    args = parser.parse_args()
+
+    filein_path = args.input
+    fileout_zip = open(args.ouput_by_zip, 'wa')
+    fileout_date = open(args.output_by_date, 'w')
 
     # information database that saves all the donation data
     # structure:
@@ -121,42 +132,30 @@ if __name__ == "__main__":
     # the recipient and transaction date in order
     infoBSTree = BSTree()
 
-    # TODO: f.open(): open output files // at least open zips file
+    # iterate through each line of input files
+    for line in stream_input(filein_path):
 
-    # iterate through the files
-    for filename in inputs:
+        # update information database from the line streamed in
+        # obtain the recipient information
+        info = update_info_database(line)
 
-        # iterate through each line of input files
-        for line in _stream_input(filename):
+        # If the info contains zip code information:
+        # add the updated entry (donation to recipient id from area zip_code)
+        # to medianvals_by_zip file
+        if line['ZIP_CODE']:
+            # Currently, the output method only checks whether
+            # the zip code is already in the database
+            # TODO: check whether the [id][zip_code] entry is just updated (by flag?)
+            fileout_zip.write(info.output_by_zip(line['ZIP_CODE']))
 
-            # update information database from the line streamed in
-            # obtain the recipient information
-            info = _update_info_database(line)
+        # if the info contains transaction date information:
+        # add to transaction date output file
+        if line['TRANSACTION_DT']:
+            # construct new infoBSTree node from information in infoDB
+            new_node = nodeID(info.get_id(), info.get_date(),
+                              info.get_date_dict_entry[line['TRANSACTION_DT']])
+            infoBSTree.update(new_node)
+            fileout_date.writelines(infoBSTree.output_tree_inorder())
 
-            # If the info contains zip code information:
-            # add the updated entry (donation to recipient id from area zip_code)
-            # to medianvals_by_zip file
-            if line['ZIP_CODE']:
-                # Currently, the output method only checks whether
-                # the zip code is already in the database
-                # TODO: check whether the [id][zip_code] entry is just updated (by flag?)
-                info.output_by_zip(line['ZIP_CODE'])
-
-            # if the info contains transaction date information:
-            # add to transaction date output file
-            if line['TRANSACTION_DT']:
-                # construct new infoBSTree node from information in infoDB
-                new_node = nodeID(info.get_id(), info.get_date(),
-                                  info.get_date_dict_entry[line['TRANSACTION_DT']])
-                infoBSTree.update(new_node)
-                infoBSTree.output_tree_inorder()
-
-    # TODO: f.close()
-
-
-
-
-
-
-
-
+    fileout_zip.close()
+    fileout_date.close()

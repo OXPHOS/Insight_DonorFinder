@@ -220,4 +220,3 @@ class BSTree(object):
         # update the height of the (parent) node
         node.height = max(self.height(node.right), self.height(node.left)) + 1
         return node
-

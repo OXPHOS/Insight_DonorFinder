@@ -65,7 +65,7 @@ class infoByDomainBase(object):
         """
         :return: median|count|total
         """
-        return '|'.join(map(str, [self.median, self.count, self.total]))
+        return '|'.join(map(str, [self.median, self.count, self.total]))+'\n'
 
 
 class infoByZip(infoByDomainBase):
