@@ -9,3 +9,5 @@ output/*
 
 src/*.pyc
 src/__pycache__/*
+
+tests/*.pyc

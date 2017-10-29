@@ -10,7 +10,7 @@ class LinkedListNode(object):
     :param right: LinkedListNode object, with the donation larger than self.val
     
     """
-    def __init__(self, val, left = None, right = None):
+    def __init__(self, val, left=None, right=None):
         self.left = left
         self.right = right
         self.val = val

@@ -54,7 +54,7 @@ class NodeByID(NodeBase):
         NodeBase.__init__(self, left, right)
         self.key = id
         self.key_idx = int(self.key[1:])
-        self.val = BSTreeByDate(NodeByDate(date, info_by_date))
+        self.val = AVLTreeByDate(NodeByDate(date, info_by_date))
 
     def update_node(self, node):
         """
@@ -110,7 +110,7 @@ class NodeByDate(NodeBase):
                "\n\theight: " + str(self.height) + "\n\tval: " + str(self.val)
 
 
-class BSTree(object):
+class AVLTree(object):
     """
     A self-balanced binary search tree for rapid insertion of new donation info
     """
@@ -227,10 +227,10 @@ class BSTree(object):
         return str(self.root)
 
 
-class BSTreeByID(BSTree):
+class AVLTreeByID(AVLTree):
     """
     Specified self-balanced binary search tree with ID as node key 
-    and BSTreeByNode as value
+    and AVLTreeByNode as value
     """
     def output(self):
         stack = []
@@ -245,7 +245,7 @@ class BSTreeByID(BSTree):
             node = node.right
 
 
-class BSTreeByDate(BSTree):
+class AVLTreeByDate(AVLTree):
     """
     Specified self-balanced binary search tree with date as node key 
     and nodeByDate as value

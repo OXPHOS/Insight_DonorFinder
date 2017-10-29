@@ -214,14 +214,14 @@ The output files are header-free.
    - **`nodeBase` / (`nodeByID` / `nodeByDate`)**
     
      Basic unit of self-balancing binary search tree, with the information of its children and its height in the tree. Allowing node `key_idx` comparison.
-      - `nodeById`: use `int`-casted recipient ID as `key_idx` and saves all the information of donations (BSTree of `nodeByDate`) to one recipient
+      - `nodeById`: use `int`-casted recipient ID as `key_idx` and saves all the information of donations (AVL Tree of `nodeByDate`) to one recipient
       - `nodeByDate`: use `int`-casted transaction date as `key_idx` and saves the information of donations to one recipient grouped by dates
       
-   - **`BSTree` / (`BSTreeByID` / `BSTreeByDate`)**
+   - **`AVLTree` / (`AVLTreeByID` / `AVLTreeByDate`)**
    
-      Self-balanced binary search tree structure with nodes derived from `nodeBase`. Allowing dynamic and fast insertion of new records. Two `BSTree` instances are used in the scripts:
-      - **`BSTreeByID`**: BSTree of each individual, ordered by recipient's ID numbers saved in `nodeByID`. Keys are converted to `int` for fast comparison. 
-      - **`BSTreeByDate`**: BSTree of dates, ordered by transaction dates saved in `nodeByDate`.
+      Self-balanced binary search tree structure with nodes derived from `nodeBase`. Allowing dynamic and fast insertion of new records. Two `AVLTree` instances are used in the scripts:
+      - **`AVLTreeByID`**: AVL Tree of each individual, ordered by recipient's ID numbers saved in `nodeByID`. Keys are converted to `int` for fast comparison. 
+      - **`AVLTreeByDate`**: AVL Tree of dates, ordered by transaction dates saved in `nodeByDate`.
       
       The different derived classes only exist for different output requirement.
    
@@ -232,26 +232,26 @@ The output files are header-free.
    
           infoDB
             └── InfoIndividual(id)
-               └── key: 
-                   string(zip code)
-               └── value: 
-                   infoByZip
-                     └── int(median), int(count), int(total), 
-                         [linkedListNode(amount of each donation)]
-               └── key: 
-                   string (transaction date)
-               └── value: 
-                   infoByDate
-                     └── int(median), int(count), int(total), 
-                         [linkedListNode(amount of each donation)]
+                   └── key: 
+                       string(zip code)
+                   └── value: 
+                       infoByZip
+                         └── int(median), int(count), int(total), 
+                             [linkedListNode(amount of each donation)]
+                   └── key: 
+                       string (transaction date)
+                   └── value: 
+                       infoByDate
+                         └── int(median), int(count), int(total), 
+                             [linkedListNode(amount of each donation)]
 
    - **Storage in self-balanced binary search tree**    
     
-            BSTreeByID
+            AVLTreeByID
              └── key_idx: 
                  int(casted recipient ID)
              └── value: 
-                 BSTreeByDate
+                 AVLTreeByDate
                    └── key_idx: 
                        int (casted date)
                    └── value: 

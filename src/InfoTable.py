@@ -4,7 +4,7 @@ from LinkedListNode import *
 class InfoByDomainBase(object):
     """
     Base class for median information storage
-    
+
     The class has the following member variables:
         - self._count: the count of donation to specific recipient
             with specific grouping rules ,
@@ -14,11 +14,12 @@ class InfoByDomainBase(object):
             with specific grouping rules,
         - self._median_left, self._median_right: objects of the doubly 
             linked list, as indexes for median position
-     
+
     :param amountLLN: linkedListNode object wrapping the amount
         of current transaction
-    
+
     """
+
     def __init__(self, amountLLN):
         self._median = int(round(amountLLN.val))
         self._count = 1
@@ -29,7 +30,7 @@ class InfoByDomainBase(object):
     def update(self, new_amountLLN):
         """
         Update member variables based on new amount coming in
-        
+
         :param new_amountLLN: linkedListNode object wrapping the amount
             of current transaction
 
@@ -59,14 +60,14 @@ class InfoByDomainBase(object):
         # update count, median and total information
         self._count += 1
         self._median = int(round((self._median_left.val + \
-                                 self._median_right.val) / 2))
+                                  self._median_right.val) / 2))
         self._total += int(new_amountLLN.val)
 
     def output(self):
         """
         :return: median|count|total
         """
-        return '|'.join(map(str, [self._median, self._count, self._total]))+'\n'
+        return '|'.join(map(str, [self._median, self._count, self._total])) + '\n'
 
 
 class InfoByZip(InfoByDomainBase):
@@ -75,10 +76,11 @@ class InfoByZip(InfoByDomainBase):
     Saves the donation information to specific recipient
     which is grouped by zip code
     """
+
     def __repr__(self):
         return "Group by zips: " + ','.join(map(str, [
-                self._median, self._count, self._total,
-                self._median_left, self._median_right]))
+            self._median, self._count, self._total,
+            self._median_left, self._median_right]))
 
 
 class InfoByDate(InfoByDomainBase):
@@ -87,10 +89,11 @@ class InfoByDate(InfoByDomainBase):
     Saves the donation information to specific recipient
     which is grouped by transaction date
     """
+
     def __repr__(self):
         return "Group by dates: " + ','.join(map(str, [
-                self._median, self._count, self._total,
-                self._median_left, self._median_right]))
+            self._median, self._count, self._total,
+            self._median_left, self._median_right]))
 
 
 class InfoIndividual(object):
@@ -102,10 +105,11 @@ class InfoIndividual(object):
         - self._date: transaction date (None/date)
         - self._zip_dict: {zip code: object infoByZip}
         - self._date_dict: {transaction date: object infoByDate}
-    
+
     :param line: dictionary of CMTE_ID, TRANSACTION_AMT, ZIP_CODE and TRANSACTION_DT
-        
+
     """
+
     def __init__(self, line):
         self._id = line['CMTE_ID']
         self._zip = line['ZIP_CODE']
@@ -166,7 +170,7 @@ class InfoIndividual(object):
         Update donation information to specific recipient based on zip code
         Create the zip-infoByZip key-value pair if the zip code shows up 
         for the first time
-        
+
         :param line: dictionary of CMTE_ID, TRANSACTION_AMT, ZIP_CODE and TRANSACTION_DT
         """
         if self.has_zip(line['ZIP_CODE']):
@@ -190,7 +194,7 @@ class InfoIndividual(object):
     def update_info(self, line):
         """
         wrapper method of donation information update
-        
+
         :param line: dictionary of CMTE_ID, TRANSACTION_AMT, ZIP_CODE and TRANSACTION_DT
         """
         if line['ZIP_CODE']:
@@ -202,14 +206,14 @@ class InfoIndividual(object):
         """
         Output donation information to specific recipient from specific zip code
         return empty string if the entry is missing
-        
+
         Currently, the output method only checks whether 
         the zip code is already in the database
         TODO: check whether the [id][zip_code] entry is just updated (by flag?)
-        
+
         :param zipcode: int, zip code entry to be output
         :return: string with format CMTE_ID|ZIP_CODE|MEDIAN|COUNT|TOTAL
-         
+
         """
         if self.has_zip(zipcode):
             return self._id + '|' + zipcode + '|' + \
@@ -233,4 +237,4 @@ class InfoIndividual(object):
             return ''
 
     def __repr__(self):
-        return self._id+': ' + str(self._zip_dict) + '; '+str(self._date_dict)
+        return self._id + ': ' + str(self._zip_dict) + '; ' + str(self._date_dict)
