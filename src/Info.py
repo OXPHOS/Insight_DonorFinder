@@ -1,6 +1,7 @@
-from linkedListNode import *
+from LinkedListNode import *
 
-class infoByDomainBase(object):
+
+class InfoByDomainBase(object):
     """
     Base class for median information storage
     
@@ -21,7 +22,7 @@ class infoByDomainBase(object):
     def __init__(self, amountLLN):
         self._median = int(round(amountLLN.val))
         self._count = 1
-        self._total = amountLLN.val
+        self._total = int(amountLLN.val)
         self._median_left = amountLLN
         self._median_right = amountLLN
 
@@ -36,7 +37,7 @@ class infoByDomainBase(object):
         # insert new donation amount to the doubly linked list
         # update median position information
         if new_amountLLN.val > self._median:
-            linkedListNode.insert_linkedlist_node(self._median_right, new_amountLLN, 'r')
+            LinkedListNode.insert_linkedlist_node(self._median_right, new_amountLLN, 'r')
 
             # if odd numbers of donation present in the doubly linked list:
             # Shift the median set by 1
@@ -47,7 +48,7 @@ class infoByDomainBase(object):
             else:
                 self._median_left, self._median_right = (new_amountLLN, new_amountLLN)
         else:
-            linkedListNode.insert_linkedlist_node(self._median_left, new_amountLLN, 'l')
+            LinkedListNode.insert_linkedlist_node(self._median_left, new_amountLLN, 'l')
             if self._median_left is self._median_right:
                 self._median_left, self._median_right = (new_amountLLN, self._median_left)
             elif new_amountLLN.val < self._median_left.val:
@@ -57,18 +58,18 @@ class infoByDomainBase(object):
 
         # update count, median and total information
         self._count += 1
-        self._median = int(round(self._median_left.val + \
-                                 self._median_right.val) / 2)
-        self._total = new_amountLLN.val
+        self._median = int(round((self._median_left.val + \
+                                 self._median_right.val) / 2))
+        self._total += int(new_amountLLN.val)
 
     def output(self):
         """
         :return: median|count|total
         """
-        return '|'.join(map(str, [self.median, self.count, self.total]))+'\n'
+        return '|'.join(map(str, [self._median, self._count, self._total]))+'\n'
 
 
-class infoByZip(infoByDomainBase):
+class InfoByZip(InfoByDomainBase):
     """
     Derived from infoByDomainBase
     Saves the donation information to specific recipient
@@ -76,10 +77,11 @@ class infoByZip(infoByDomainBase):
     """
     def __repr__(self):
         return "Group by zips: " + ','.join(map(str, [
-                self.median, self.count, self.median_set]))
+                self._median, self._count, self._total,
+                self._median_left, self._median_right]))
 
 
-class infoByDate(infoByDomainBase):
+class InfoByDate(InfoByDomainBase):
     """
     Derived from infoByDomainBase
     Saves the donation information to specific recipient
@@ -87,10 +89,11 @@ class infoByDate(infoByDomainBase):
     """
     def __repr__(self):
         return "Group by dates: " + ','.join(map(str, [
-                self.median, self.count, self.median_set]))
+                self._median, self._count, self._total,
+                self._median_left, self._median_right]))
 
 
-class infoIndividual(object):
+class InfoIndividual(object):
     """
     structure saves all donation information of a specific recipient,
     with information:
@@ -111,9 +114,9 @@ class infoIndividual(object):
         self._date_dict = dict()
 
         if self._zip:
-            self._zip_dict[self._zip] = infoByZip(line['TRANSACTION_AMT'])
+            self._zip_dict[self._zip] = InfoByZip(line['TRANSACTION_AMT'])
         if self._date:
-            self._date_dict[self._date] = infoByDate(line['TRANSACTION_AMT'])
+            self._date_dict[self._date] = InfoByDate(line['TRANSACTION_AMT'])
 
     def has_zip(self, zipcode):
         """
@@ -167,9 +170,9 @@ class infoIndividual(object):
         :param line: dictionary of CMTE_ID, TRANSACTION_AMT, ZIP_CODE and TRANSACTION_DT
         """
         if self.has_zip(line['ZIP_CODE']):
-            self._zip_dict[self._zip].update(line['TRANSACTION_AMT'])
+            self._zip_dict[line['ZIP_CODE']].update(line['TRANSACTION_AMT'])
         else:
-            self._zip_dict[self._zip] = infoByZip(line['TRANSACTION_AMT'])
+            self._zip_dict[line['ZIP_CODE']] = InfoByZip(line['TRANSACTION_AMT'])
 
     def update_by_date(self, line):
         """
@@ -180,9 +183,9 @@ class infoIndividual(object):
         :param line: dictionary of CMTE_ID, TRANSACTION_AMT, ZIP_CODE and TRANSACTION_DT
         """
         if self.has_date(line['TRANSACTION_DT']):
-            self._date_dict[self._date].update(line['TRANSACTION_AMT'])
+            self._date_dict[line['TRANSACTION_DT']].update(line['TRANSACTION_AMT'])
         else:
-            self._date_dict[self._date] = infoByZip(line['TRANSACTION_AMT'])
+            self._date_dict[line['TRANSACTION_DT']] = InfoByDate(line['TRANSACTION_AMT'])
 
     def update_info(self, line):
         """
@@ -209,8 +212,8 @@ class infoIndividual(object):
          
         """
         if self.has_zip(zipcode):
-            return self._id + '|' + str(self._zip) + '|' + \
-                   self._zip_dict[self._zip].output()
+            return self._id + '|' + zipcode + '|' + \
+                   self._zip_dict[zipcode].output()
         else:
             return ''
 
@@ -224,7 +227,10 @@ class infoIndividual(object):
 
         """
         if self.has_date(date):
-            return self._id + '|' + str(self._date) + '|' + \
-                   self._date_dict[self._date].output()
+            return self._id + '|' + date + '|' + \
+                   self._date_dict[date].output_NodeByDate()
         else:
             return ''
+
+    def __repr__(self):
+        return self._id+': ' + str(self._zip_dict) + '; '+str(self._date_dict)

@@ -5,9 +5,14 @@ Implementation of [Insight 2017 challenge](https://github.com/InsightDataScience
 - [Introduction](README.md#Introduction)
 - [Example](README.md#Example)
 - [Features](README.md#Features)
-    - [Architecture](README.md#Architecture)
+    - [Work flow](README.md#Work flow)
     - [I/O](README.md#I-O)
+        - [Input](README.md#Input)
+        - [Output](README.md#Output)
     - [Data structure](README.md#Data-structure)
+        - [Low level data structure](README.md#Low-level-data-structure)
+        - [High level data structure](README.md#High-level-data-structure)
+        - [Architecture](README.md#Architecture)
 - [Run instructions](README.md#Run-instructions)
 - [Testing](README.md#Testing)
 
@@ -18,7 +23,7 @@ The project aims to identify possible donors to different candidates in election
 The scripts take in donation records regularly published by [Federal Election Commission](http://classic.fec.gov/finance/disclosure/ftpdet.shtml),
 and analyze the data with stream-processing methods on single machine.
 
-By running the scripts, one can get:
+By running the package, one can get:
 
    - **Up-to-date calculated median, total dollar amount and total number of contributions to each candidate from different areas (zip codes)**, which reveals the areas (zip codes) that are optimal choices for soliciting future donations for similar candidates.
     
@@ -107,7 +112,7 @@ For the purposes of this project, we will extract the information of recipients,
 
 - `OTHER_ID`: other identification number to label non-individual donors
 
-With analysis, the scripts will output two files:
+With analysis, the package will output two files:
 
 - **`medianvals_by_zip.txt`**
 
@@ -132,7 +137,7 @@ With analysis, the scripts will output two files:
 
   The calculated median, total dollar amount and total number of contributions to each candidate from different dates.
   
-  The [database](README.md#Data-structure) keeps one entry for the summary of donation to each recipient from each date. The enrties are ordered by recipients' id number and the date.
+  The [database](README.md#Data-structure) keeps one entry for the summary of donation to each recipient from each date. The entries are ordered by recipients' id number and the date.
   
    The `medianvals_by_date.txt` generated from the example input above is:
    
@@ -145,7 +150,7 @@ With analysis, the scripts will output two files:
 
 ## Features
 
-### Architecture
+### Work flow
 
                               Read record by streaming 
                                         |
@@ -167,61 +172,60 @@ With analysis, the scripts will output two files:
                                                      to medianvals_by_date
 
 ### I/O
-  The scripts require a single input file and two paths to store the outputs.
+  The package require a single input file and two paths to store the outputs when executed.
   
-  - **Input**
+#### Input
     
-    The scripts yield each line(record) reading from the input file. Before yielding, the input method confirms that
-      - The entry is valid (by checking column number)
-      - The recipient ID (`CMTE_ID`) is valid, which starts by 'C' followed by 8 digits
-      - The transaction amount is valid number
-      - Whether the zip code or the transaction date is valid
-      
-    Also, the method converts transaction date and transaction amount to internal objects.
+The scripts yield each line(record) reading from the input file. Before yielding, the input method confirms that
+  - The entry is valid (by checking column number)
+  - The recipient ID (`CMTE_ID`) is valid, which starts by 'C' followed by 8 digits
+  - The transaction amount is valid number
+  - Whether the zip code or the transaction date is valid
+  
+Also, the method converts transaction date and transaction amount to internal objects.
    
-   - **Output**
-   
-     As mentioned above, the output methods 
-        - append a new entry to `medianvals_by_zip.txt` if available
-        - re-order and re-write the `medianvals_by_date.txt` if available
-    
-     The output files are header free.
+#### Output
+
+As mentioned above, the output methods 
+- append a new entry to `medianvals_by_zip.txt` if available
+- re-order and re-write the `medianvals_by_date.txt` if available
+
+The output files are header-free.
 
 ### Data structure
 
-#### Low level data stucture
-  - **`FECDate`**
-  
-    Wrapping class of Python built-in `Datetime` data type. The class allows date validation and date comparison via `Datetime`, and FEC-style date representation (`MMDDYYYY`).
+#### Low level data structure
   
   - **`linkedListNode`**
   
-    Node of a doubly linked list. Wraps the value of transaction amount and provides access to other node objects that with transaction amount just smaller and larger than the amount of current node given grouping rule. The class is used for median search and update.
+    Node of a doubly linked list. Wraps the value of transaction amount and provides access to other `linkedListNode` objects with transaction amount just smaller and larger than the amount of current `linkedListNode` object given grouping rule. The class is used for median search and update.
     
-  - **`infoByDomainBase`/(`infoByZip`/`infoByDate`)**
+  - **`infoByDomainBase` / (`infoByZip` / `infoByDate`)**
   
     Structure that saves median, counts and total dollar amount of contributions based on provided grouping rules. `infoByZip` and `infoByDate` are derived from `infoByDomainBase`.
     
  #### High level data structure
    - **`infoIndividual`**
     
-     Basic data stroage structure in database that saves donation information of each recipient. The object maintains two private dictionaries, with donations information grouped by zip codes and dates of the recipient (`infoByZip`/`infoByDate`).
+     Basic data stroage structure in database that saves donation information received by each recipient. The object maintains two private dictionaries, with donations information grouped by zip codes and dates of the recipient (`infoByZip`/`infoByDate`).
 
-   - **`nodeBase`/(`nodeByID`/`nodeByDate`)**
+   - **`nodeBase` / (`nodeByID` / `nodeByDate`)**
     
      Basic unit of self-balancing binary search tree, with the information of its children and its height in the tree. Allowing node `key_idx` comparison.
       - `nodeById`: use `int`-casted recipient ID as `key_idx` and saves all the information of donations (BSTree of `nodeByDate`) to one recipient
-      - `nodeByDate`: use `FECDate` as `key_idx` and saves the information of donations to one recipient grouped by dates
+      - `nodeByDate`: use `int`-casted transaction date as `key_idx` and saves the information of donations to one recipient grouped by dates
       
-   - **`BSTree`**
+   - **`BSTree` / (`BSTreeByID` / `BSTreeByDate`)**
    
-      Self-balanced binary search tree sturcture with nodes derived from `nodeBase`. Allowing dynamic and fast insertion of new records. Two `BSTree` instances are used in the scripts:
-      - **`BSTree` of each individual**: Ordered by recipient's ID numbers saved in `nodeByID`. Keys are converted to `int` for fast comparison. 
-      - **`BSTree` of dates**: Ordered by transaction dates saved in `nodeByDate`.
+      Self-balanced binary search tree structure with nodes derived from `nodeBase`. Allowing dynamic and fast insertion of new records. Two `BSTree` instances are used in the scripts:
+      - **`BSTreeByID`**: BSTree of each individual, ordered by recipient's ID numbers saved in `nodeByID`. Keys are converted to `int` for fast comparison. 
+      - **`BSTreeByDate`**: BSTree of dates, ordered by transaction dates saved in `nodeByDate`.
+      
+      The different derived classes only exist for different output requirement.
    
       Trees are in-order traversed during output.
    
-#### Summary
+#### Architecture
    - **Storage in database**
    
           infoDB
@@ -230,24 +234,24 @@ With analysis, the scripts will output two files:
                    string(zip code)
                └── value: 
                    infoByZip
-                     └── int(median), int(count), float(total), 
+                     └── int(median), int(count), int(total), 
                          [linkedListNode(amount of each donation)]
                └── key: 
-                   FECDate (transaction date)
+                   string (transaction date)
                └── value: 
                    infoByDate
-                     └── int(median), int(count), float(total), 
+                     └── int(median), int(count), int(total), 
                          [linkedListNode(amount of each donation)]
 
-    - **Storage in self-balanced binary search tree**    
+   - **Storage in self-balanced binary search tree**    
     
-            BSTree
+            BSTreeByID
              └── key_idx: 
                  int(casted recipient ID)
              └── value: 
-                 BSTree
+                 BSTreeByDate
                    └── key_idx: 
-                       FECdate(date)
+                       int (casted date)
                    └── value: 
                        infoByDate
                          └── int(median), int(count), float(total), 
@@ -255,16 +259,19 @@ With analysis, the scripts will output two files:
 
 ## Run instructions
 
-One can run the scripts with test data in root folder by:
+One can run the package with test data in root folder by:
 
-`root~$ ./run.sh`
+```
+root~$ chmod +x run.sh
+root~$ ./run.sh
+```
 
-Or run the srcipts with (s)he's own dataset by:
+Or run the package with (s)he's own dataset by:
 
 `root~$ ./run.sh path/to/input/file path/to/medianvals_by_zip/output/file path/to/medianvals_by_date/output/file`
 
-??????Python 2.x or Python 3.x is required
-
 No external libraries or dependencies are required for execution.
 
+The package is tested with Python 2.7.13 and XXXX
+  
 ## Testing

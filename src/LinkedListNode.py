@@ -1,5 +1,5 @@
-class linkedListNode(object):
-    '''
+class LinkedListNode(object):
+    """
     Node of doubly linked list
     Stores one record of donation amount,
     and the smaller and larger donation 
@@ -9,7 +9,7 @@ class linkedListNode(object):
     :param left: LinkedListNode object, with the donation smaller than self.val
     :param right: LinkedListNode object, with the donation larger than self.val
     
-    '''
+    """
     def __init__(self, val, left = None, right = None):
         self.left = left
         self.right = right
@@ -19,8 +19,8 @@ class linkedListNode(object):
         return str(self.val)
 
     @staticmethod
-    def insert_linkedlist_node(self, old_node, new_node, direction):
-        '''
+    def insert_linkedlist_node(old_node, new_node, direction):
+        """
         :param old_node: LinkedListNode object, 
             the donation node already in doubly linked list
         :param new_node: LinkedListNode object, 
@@ -30,9 +30,9 @@ class linkedListNode(object):
             'r': new_node.val > old_node.val
             'l': new_node.val < old_node.val
 
-        '''
+        """
         if direction not in ['l', 'r']:
-            raise ValueError('Undifined argument value: direction')
+            raise ValueError('Undefined argument value: direction')
 
         if old_node.val > new_node.val:
             # if reaches the leftmost and
@@ -47,7 +47,7 @@ class linkedListNode(object):
 
             # old_node.left.val > new_node.val and old_node.value > new_node.value
             else:
-                self.insert_linkedlist_node(old_node.left, new_node, 'l')
+                LinkedListNode.insert_linkedlist_node(old_node.left, new_node, 'l')
         else:
             # reaches the rightmost and
             # new_node.val is the largest of the linked list
@@ -61,4 +61,4 @@ class linkedListNode(object):
 
             # old_node.right.val < new_node.val and old_node.value < new_node.value
             else:
-                self.insert_linkedlist_node(old_node.right, new_node, 'r')
+                LinkedListNode.insert_linkedlist_node(old_node.right, new_node, 'r')

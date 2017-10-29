@@ -1,4 +1,4 @@
-class nodeBase(object):
+class NodeBase(object):
     """
     Base class that saves node information of self balanced binary search tree
     
@@ -11,15 +11,10 @@ class nodeBase(object):
     def __init__(self, left=None, right=None):
         self.left = left
         self.right = right
+        self.key = None
         self.key_idx = None
         self.val = None
         self.height = 0
-
-    def output(self):
-        """
-        :return: key | val.output()
-        """
-        return self.key + '|' + self.val.output()
 
     def __eq__(self, other):
         return self.key_idx == other.key_idx
@@ -34,12 +29,12 @@ class nodeBase(object):
         return self.key_idx >= other.key_idx
 
     def __lt__(self, other):
-        return not self.key_idx <= other.key_idx
+        return self.key_idx < other.key_idx
 
     def __le__(self, other):
-        return not self.key_idx <= other.key_idx
+        return self.key_idx <= other.key_idx
 
-class nodeByID(nodeBase):
+class NodeByID(NodeBase):
     """
     Structure that saves information of each recipient
         - self.key: string, id Cxxxxxxxxx
@@ -55,10 +50,10 @@ class nodeByID(nodeBase):
     :param right: object of NodeBase or derived, right child of the node
     """
     def __init__(self, id, date, info_by_date, left=None, right=None):
-        nodeBase.__init__(self, left, right)
+        NodeBase.__init__(self, left, right)
         self.key = id
-        self.key_idx = int(self._key[1:])
-        self.val = BSTree(nodeByDate(date, info_by_date))
+        self.key_idx = int(self.key[1:])
+        self.val = BSTreeByDate(NodeByDate(date, info_by_date))
 
     def update_node(self, node):
         """
@@ -66,9 +61,20 @@ class nodeByID(nodeBase):
         update the nested tree constructed from the date
         :param node: object of NodeID, the donation information to be added 
         """
-        self.val.update_tree(node.val)
+        self.val.update_tree(node.val.root)
 
-class nodeByDate(nodeBase):
+    def output_NodeByID(self):
+        """
+        :return: key | val.output()
+        """
+        for entry in self.val.output_TreeByDate():
+            yield self.key + '|' + entry
+
+    def __repr__(self):
+        return "key: " + str(self.key) + '\nkey_idx:' + str(self.key_idx) + \
+               "\nheight: " + str(self.height) + "\nval: " + str(self.val)
+
+class NodeByDate(NodeBase):
     """
     Structure that saves donation information from different dates 
     to specific recipient 
@@ -83,13 +89,23 @@ class nodeByDate(nodeBase):
     :param right: object of NodeBase or derived, right child of the node
     """
     def __init__(self, date, info_by_date, left=None, right=None):
-        nodeBase.__init__(self, left, right)
+        NodeBase.__init__(self, left, right)
         self.key = date
-        self.key_idx = date
+        self.key_idx = int(date)
         self.val = info_by_date
 
     def update_node(self, node):
         self.val = node.val
+
+    def output_NodeByDate(self):
+        """
+        :return: key | val.output()
+        """
+        return self.key + '|' + self.val.output()
+
+    def __repr__(self):
+        return "\n\tkey: " + str(self.key) + '\n\tkey_idx:' + str(self.key_idx) + \
+               "\n\theight: " + str(self.height) + "\n\tval: " + str(self.val)
 
 class BSTree(object):
     """
@@ -119,16 +135,17 @@ class BSTree(object):
         else:
             self.root = node
 
-    def output_tree_inorder(self):
+    '''
+    def output1(self):
         """
         Output the tree from smallest node to largest node
         
         :return: id|transaction date|median|count|total
         """
         node = self.root
-        yield self._output_tree_inorder(node)
+        return self._output(node)
 
-    def _output_tree_inorder(self, node):
+    def _output(self, node):
         """
         Implementation of recursive in-order traversal of the tree
         output the tree from smallest node to largest node
@@ -137,10 +154,10 @@ class BSTree(object):
         """
         if not node:
             return
-        self._output_tree_inorder(node.left)
+        self._output(node.left)
         yield node.output()
-        self._output_tree_inorder(node.right)
-
+        self._output(node.right)
+    '''
     def _single_left_rotate(self, node):
         """
         switch -  to:
@@ -198,7 +215,10 @@ class BSTree(object):
         :param new_node: nodeBase or derived type, the new node to be added 
         """
         if new_node < node:
-            node.left = self._update_tree(node.left, new_node)
+            if node.left:
+                node.left = self._update_tree(node.left, new_node)
+            else:
+                node.left = new_node
             # if the added node results in height in-balance: turn the nodes
             if (self.height(node.left) - self.height(node.right)) == 2:
                 if new_node < node.left:
@@ -206,7 +226,10 @@ class BSTree(object):
                 else:
                     node = self._double_left_rotate(node)
         elif new_node > node:
-            node.right = self._update_tree(node.right, new_node)
+            if node.right:
+                node.right = self._update_tree(node.right, new_node)
+            else:
+                node.right = new_node
             # if the added node results in height in-balance: turn the nodes
             if (self.height(node.right) - self.height(node.left)) == 2:
                 if new_node < node.right:
@@ -220,3 +243,33 @@ class BSTree(object):
         # update the height of the (parent) node
         node.height = max(self.height(node.right), self.height(node.left)) + 1
         return node
+
+    def __repr__(self):
+        return str(self.root)
+
+
+class BSTreeByID(BSTree):
+    def output(self):
+        stack = []
+        node = self.root
+        while node or stack:
+            while node:
+                stack.append(node)
+                node = node.left
+            node = stack.pop()
+            for a in node.output_NodeByID():
+                yield a
+            node = node.right
+
+
+class BSTreeByDate(BSTree):
+    def output_TreeByDate(self):
+        stack = []
+        node = self.root
+        while node or stack:
+            while node:
+                stack.append(node)
+                node = node.left
+            node = stack.pop()
+            yield node.output_NodeByDate()
+            node = node.right

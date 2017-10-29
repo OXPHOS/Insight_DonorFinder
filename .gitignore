@@ -1,1 +1,10 @@
 .idea/*
+
+insight_testsuite/temp/*
+insight_testsuite/temp/src/*
+insight_testsuite/results.txt
+
+input/*
+output/*
+
+src/*.pyc

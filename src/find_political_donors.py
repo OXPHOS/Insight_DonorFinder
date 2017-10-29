@@ -1,9 +1,9 @@
 import argparse
-from FECDate import *
-from Info import infoIndividual
+from validate_date import *
+from Info import InfoIndividual
 from lib import *
-from linkedListNode import linkedListNode
-from BSTree import BSTree, nodeByID
+from LinkedListNode import LinkedListNode
+from BSTree import BSTreeByID, NodeByID
 
 
 def stream_input(filename):
@@ -46,8 +46,6 @@ def stream_input(filename):
                 zip(INFO_HEADER, \
                     [entries[j] for j in [INPUT_HEADER[i] for i in INFO_HEADER]]))
 
-            print extracted_info
-
             # Validate extracted information
             # Validate the format of CMTE_ID
             if not extracted_info['CMTE_ID'][0] is 'C' or \
@@ -58,7 +56,7 @@ def stream_input(filename):
             # Validate that the transaction amount
             try:
                 extracted_info['TRANSACTION_AMT'] = \
-                    linkedListNode(float(extracted_info['TRANSACTION_AMT']))
+                    LinkedListNode(float(extracted_info['TRANSACTION_AMT']))
             except SyntaxError:
                 continue
 
@@ -68,12 +66,10 @@ def stream_input(filename):
                             len(extracted_info['ZIP_CODE']) < 5:
                 extracted_info['ZIP_CODE'] = None
             else:
-                extracted_info['ZIP_CODE'] = int(extracted_info['ZIP_CODE'][0:5])
+                extracted_info['ZIP_CODE'] = extracted_info['ZIP_CODE'][0:5]
 
-            # Validate transaction date via FECDate class
-            try:
-                extracted_info['TRANSACTION_DT'] = FECDate(extracted_info['TRANSACTION_DT'])
-            except TypeError:
+            # Validate transaction date
+            if not validate_date(extracted_info['TRANSACTION_DT']):
                 extracted_info['TRANSACTION_DT'] = None
 
             yield extracted_info
@@ -95,15 +91,15 @@ def update_info_database(line):
     :param line: dict, input line with fields: 
         CMTE_ID, TRANSACTION_AMT, ZIP_CODE and TRANSACTION_DT
         
-    :return: object infoIndividual, contains the summary of the donation the recipient
-        has received so far.
+    :return: object infoIndividual, contains the summary of the donation 
+        the recipient has received so far.
     """
     id = line['CMTE_ID']
 
     if id in infoDB:
         infoDB[id].update_info(line)
     else:
-        infoDB[id] = infoIndividual(line)
+        infoDB[id] = InfoIndividual(line)
 
     return infoDB[id]
 
@@ -119,10 +115,6 @@ if __name__ == "__main__":
         "path to output: medianvals_by_date" )
     args = parser.parse_args()
 
-    filein_path = args.input
-    fileout_zip = open(args.ouput_by_zip, 'wa')
-    fileout_date = open(args.output_by_date, 'w')
-
     # information database that saves all the donation data
     # structure:
     # {id: object infoIndividual}
@@ -130,10 +122,13 @@ if __name__ == "__main__":
 
     # self-balancing binary search tree that saves
     # the recipient and transaction date in order
-    infoBSTree = BSTree()
+    infoBSTree = BSTreeByID()
+
+    # open medianvals_by_zip file since it requires streaming
+    fileout_zip = open(args.output_by_zip, 'wa')
 
     # iterate through each line of input files
-    for line in stream_input(filein_path):
+    for line in stream_input(args.input):
 
         # update information database from the line streamed in
         # obtain the recipient information
@@ -152,10 +147,15 @@ if __name__ == "__main__":
         # add to transaction date output file
         if line['TRANSACTION_DT']:
             # construct new infoBSTree node from information in infoDB
-            new_node = nodeByID(info.get_id(), info.get_date(),
-                                info.get_date_dict_entry[line['TRANSACTION_DT']])
-            infoBSTree.update(new_node)
-            fileout_date.writelines(infoBSTree.output_tree_inorder())
+            new_node = NodeByID(info.get_id(), info.get_date(),
+                                info.get_date_dict_entry(line['TRANSACTION_DT']))
+            infoBSTree.update_tree(new_node)
 
+            # Write the updated tree to output via in-order traversal
+            fileout_date = open(args.output_by_date, 'w')
+            for entry in infoBSTree.output():
+                fileout_date.write(entry)
+            fileout_date.close()
+
+    # close medianvals_by_zip file
     fileout_zip.close()
-    fileout_date.close()
