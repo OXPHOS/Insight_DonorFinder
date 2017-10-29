@@ -34,6 +34,7 @@ class NodeBase(object):
     def __le__(self, other):
         return self.key_idx <= other.key_idx
 
+
 class NodeByID(NodeBase):
     """
     Structure that saves information of each recipient
@@ -74,6 +75,7 @@ class NodeByID(NodeBase):
         return "key: " + str(self.key) + '\nkey_idx:' + str(self.key_idx) + \
                "\nheight: " + str(self.height) + "\nval: " + str(self.val)
 
+
 class NodeByDate(NodeBase):
     """
     Structure that saves donation information from different dates 
@@ -107,6 +109,7 @@ class NodeByDate(NodeBase):
         return "\n\tkey: " + str(self.key) + '\n\tkey_idx:' + str(self.key_idx) + \
                "\n\theight: " + str(self.height) + "\n\tval: " + str(self.val)
 
+
 class BSTree(object):
     """
     A self-balanced binary search tree for rapid insertion of new donation info
@@ -135,29 +138,6 @@ class BSTree(object):
         else:
             self.root = node
 
-    '''
-    def output1(self):
-        """
-        Output the tree from smallest node to largest node
-        
-        :return: id|transaction date|median|count|total
-        """
-        node = self.root
-        return self._output(node)
-
-    def _output(self, node):
-        """
-        Implementation of recursive in-order traversal of the tree
-        output the tree from smallest node to largest node
-        
-        :return: id|transaction date|median|count|total
-        """
-        if not node:
-            return
-        self._output(node.left)
-        yield node.output()
-        self._output(node.right)
-    '''
     def _single_left_rotate(self, node):
         """
         switch -  to:
@@ -206,7 +186,6 @@ class BSTree(object):
         node.right = self._single_left_rotate(node.right)
         return self._single_right_rotate(node)
 
-
     def _update_tree(self, node, new_node):
         """
         Implementation of node insertion
@@ -249,6 +228,10 @@ class BSTree(object):
 
 
 class BSTreeByID(BSTree):
+    """
+    Specified self-balanced binary search tree with ID as node key 
+    and BSTreeByNode as value
+    """
     def output(self):
         stack = []
         node = self.root
@@ -263,6 +246,10 @@ class BSTreeByID(BSTree):
 
 
 class BSTreeByDate(BSTree):
+    """
+    Specified self-balanced binary search tree with date as node key 
+    and nodeByDate as value
+    """
     def output_TreeByDate(self):
         stack = []
         node = self.root
