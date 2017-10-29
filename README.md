@@ -137,7 +137,8 @@ With analysis, the package will output two files:
 
   The calculated median, total dollar amount and total number of contributions to each candidate from different dates.
   
-  The [database](README.md#Data-structure) keeps one entry for the summary of donation to each recipient from each date. The entries are ordered by recipients' id number and the date.
+  The [database](README.md#Data-structure) keeps one entry for the summary of donation 
+  to each recipient from each date. The entries are ordered by recipients' id number and the date.
   
    The `medianvals_by_date.txt` generated from the example input above is:
    
@@ -176,7 +177,8 @@ With analysis, the package will output two files:
   
 #### Input
     
-The scripts yield each line(record) reading from the input file. Before yielding, the input method confirms that
+The scripts yield each line(record) reading from the input file. Before yielding, 
+the input method confirms that
   - The entry is valid (by checking column number)
   - The recipient ID (`CMTE_ID`) is valid, which starts by 'C' followed by 8 digits
   - The transaction amount is valid number
@@ -259,19 +261,25 @@ The output files are header-free.
 
 ## Run instructions
 
-One can run the package with test data in root folder by:
+Your can run the package with test data in root folder by:
 
 ```
 root~$ chmod +x run.sh
 root~$ ./run.sh
 ```
 
-Or run the package with (s)he's own dataset by:
+Or run the package with your own input dataset by:
 
-`root~$ ./run.sh path/to/input/file path/to/medianvals_by_zip/output/file path/to/medianvals_by_date/output/file`
+`root~$ ./run.sh path/to/input/file`
+ 
+You can also change the output destination by specifying the output path. However, 
+you must pass path to the input, and paths to both output files (groupby zip code output and groupby date output)
+ at the same time.
+
+`root~$ ./run.sh path/to/input/file ./run.sh path/to/medianvals_by_zip/output/file path/to/medianvals_by_date/output/file`
 
 No external libraries or dependencies are required for execution.
 
-The package is tested with Python 2.7.13 and XXXX
+The package is tested with Python 2.7.13 and Python 3.6.1.
   
 ## Testing
