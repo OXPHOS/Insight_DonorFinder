@@ -8,3 +8,4 @@ input/*
 output/*
 
 src/*.pyc
+src/__pycache__/*

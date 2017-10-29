@@ -125,7 +125,7 @@ if __name__ == "__main__":
     infoBSTree = BSTreeByID()
 
     # open medianvals_by_zip file since it requires streaming
-    fileout_zip = open(args.output_by_zip, 'wa')
+    fileout_zip = open(args.output_by_zip, 'w')
 
     # iterate through each line of input files
     for line in stream_input(args.input):
