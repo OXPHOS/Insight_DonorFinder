@@ -23,7 +23,7 @@ The project aims to identify possible donors to different candidates in election
 The scripts take in donation records regularly published by [Federal Election Commission](http://classic.fec.gov/finance/disclosure/ftpdet.shtml),
 and analyze the data with stream-processing methods on single machine.
 
-By running the package, one can get:
+By running the package, you will get:
 
    - **Up-to-date calculated median, total dollar amount and total number of contributions to each candidate from different areas (zip codes)**, which reveals the areas (zip codes) that are optimal choices for soliciting future donations for similar candidates.
     
@@ -131,7 +131,7 @@ With analysis, the package will output two files:
 
   with implicit header:
 
-      Recipient's ID | Area (zip code) | Median of contribution | Total number of contributions | Total dollar amount of contributions |
+      Recipient's ID | Area (zip code) | Median of contribution | Total number of contributions | Total dollar amount of contributions
 
 - **`medianvals_by_date.txt`**
 
@@ -147,7 +147,7 @@ With analysis, the package will output two files:
 
   with implicit header:
   
-       Recipient's ID | Date | Median of contribution | Total number of contributions | Total dollar amount of contributions |
+       Recipient's ID | Date | Median of contribution | Total number of contributions | Total dollar amount of contributions
 
 ## Features
 
@@ -288,11 +288,13 @@ Two types of testing are implemented for the package.
 
 Tests are supported by Python's `unittest` framework. The tests covering all modules from the package can be found in [`./tests/`](https://github.com/OXPHOS/Insight_DonorFinder/tree/master/tests). The tests can be run by:
 
-`root~$ ./run-tests.sh`
+`root~$ ./run_tests.sh`
 
 ### Structure and I/O testing
 
-Enabled by Insight. Tests can be found under [`insight_testsuite/tests/`](https://github.com/OXPHOS/Insight_DonorFinder/tree/master/insight_testsuite/tests). To restrict the size of the package, not all test input/output files are uploaded.
+Enabled by Insight. Tests can be found under [`insight_testsuite/tests/`](https://github.com/OXPHOS/Insight_DonorFinder/tree/master/insight_testsuite/tests). 
+To restrict the size of the package, not all test input/output files are uploaded. 
+More test datesets can be found at [website of FEC](http://classic.fec.gov/finance/disclosure/ftpdet.shtml).
 
 The tests can be run by：
 
