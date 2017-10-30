@@ -1,4 +1,5 @@
-from LinkedListNode import *
+from src.LinkedListNode import *
+from decimal import Decimal, ROUND_HALF_UP # For Py2 and Py3 compatibility
 
 
 class InfoByDomainBase(object):
@@ -27,7 +28,7 @@ class InfoByDomainBase(object):
             self._median_left = None
             self._median_right = None
         else:
-            self._median = int(round(amount))
+            self._median = int(Decimal(amount).quantize(0, ROUND_HALF_UP))
             self._count = 1
             self._total = amount
             self._median_left = LinkedListNode(amount)
@@ -59,7 +60,7 @@ class InfoByDomainBase(object):
 
         # Corner case: initiated empty InfoByDomain class
         if (not self._median_left) or (not self._median_right):
-            self._median = int(round(new_amountLLN.get_value()))
+            self._median = int(Decimal(amount).quantize(0, ROUND_HALF_UP))
             self._count = 1
             self._total = new_amountLLN.get_value()
             self._median_left = LinkedListNode(new_amountLLN.get_value())
@@ -101,8 +102,9 @@ class InfoByDomainBase(object):
 
         # update count, median and total information
         self._count += 1
-        self._median = int(round(float(self._median_left.get_value() + \
-                                  self._median_right.get_value()) / 2))
+        self._median = (Decimal(self._median_left.get_value() + \
+                                self._median_right.get_value()) / 2).\
+            quantize(0, ROUND_HALF_UP)
         self._total += new_amountLLN.get_value()
 
     def output(self):

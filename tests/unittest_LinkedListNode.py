@@ -25,9 +25,9 @@ class TestLinkedListNode(unittest.TestCase):
         size = 6
         node = [None] * size
         node[0] = LinkedListNode(0)
-        for i in xrange(1, size):
+        for i in range(1, size):
             node[i] = LinkedListNode(i, node[i-1])
-        for i in xrange(0, size-1):
+        for i in range(0, size-1):
             node[i].right = node[i+1]
 
         new_node = LinkedListNode(4.5)

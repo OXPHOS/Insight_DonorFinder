@@ -8,6 +8,8 @@
 # If only one parameter is passed to the script, default output paths will be used.
 # If no parameter is passed to the script, default input and output paths will be used.
 
+export PYTHONPATH=$PYTHONPATH:./src
+
 echo
 echo Running find_political_donors.py
 echo --------------------------------

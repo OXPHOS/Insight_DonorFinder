@@ -85,7 +85,7 @@ class TestInfoByDomainBase(unittest.TestCase):
     def test_update_floats(self):
         nodes = [1, 3.3, 2, 4.5, 1.8, 6]
         info = InfoByDomainBase(nodes[0])
-        for i in xrange(1, 6):
+        for i in range(1, 6):
             info.update(nodes[i])
 
         self.assertEqual(info.get_median(), 3)  # round-up

@@ -11,3 +11,4 @@ src/*.pyc
 src/__pycache__/*
 
 tests/*.pyc
+tests/__pycache__/*

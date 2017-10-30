@@ -1,7 +1,5 @@
 import argparse
-from stream_input import stream_input
-from InfoTable import InfoIndividual
-from AVLTree import *
+from src import *
 
 
 def update_info_database(line):
