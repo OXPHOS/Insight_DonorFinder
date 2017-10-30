@@ -1,4 +1,5 @@
 import datetime
+import sys
 
 INPUT_HEADER = {
     'CMTE_ID':0,
@@ -26,8 +27,20 @@ def stream_input(filename):
     """
     file = open(filename, 'r')
 
+    # for progress bar
+    counter = 0
+    sys.stdout.write('PROGRESS(every 1000 reads): \n')
+    sys.stdout.write('.')
+    sys.stdout.flush()
+
     # Iterate the file till the end of the file
     while True:
+        counter += 1
+        if counter == 1000:
+            sys.stdout.write('.')
+            sys.stdout.flush()
+            counter = 0
+
         line = file.readline()
         if line in ['\n', '', ' ']:
             break

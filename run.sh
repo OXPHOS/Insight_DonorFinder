@@ -48,6 +48,8 @@ case "$#" in
 esac
 
 print_path $input $output_zip $output_date
+echo
+echo --------------------------------
 run_script $input $output_zip $output_date
 
 echo
