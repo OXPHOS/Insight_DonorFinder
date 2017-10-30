@@ -2,19 +2,19 @@ Implementation of [Insight 2017 challenge](https://github.com/InsightDataScience
 
 ## Table of contents
 
-- [Introduction](README.md#Introduction)
-- [Example](README.md#Example)
-- [Features](README.md#Features)
-    - [Work flow](README.md#Work flow)
-    - [I/O](README.md#I-O)
-        - [Input](README.md#Input)
-        - [Output](README.md#Output)
-    - [Data structure](README.md#Data-structure)
-        - [Low level data structure](README.md#Low-level-data-structure)
-        - [High level data structure](README.md#High-level-data-structure)
-        - [Architecture](README.md#Architecture)
-- [Run instructions](README.md#Run-instructions)
-- [Testing](README.md#Testing)
+- [Introduction](README.md#introduction)
+- [Example](README.md#example)
+- [Features](README.md#features)
+    - [Work flow](README.md#work-flow)
+    - [I/O](README.md#io)
+        - [Input](README.md#input)
+        - [Output](README.md#output)
+    - [Data structure](README.md#data-structure)
+        - [Low level data structure](README.md#low-level-data-structure)
+        - [High level data structure](README.md#high-level-data-structure)
+        - [Architecture](README.md#architecture)
+- [Run instructions](README.md#run-instructions)
+- [Testing](README.md#testing)
 
 ## Introduction
 
@@ -137,7 +137,7 @@ With analysis, the package will output two files:
 
   The calculated median, total dollar amount and total number of contributions to each candidate from different dates.
   
-  The [database](README.md#Data-structure) keeps one entry for the summary of donation 
+  The [database](README.md#data-structure) keeps one entry for the summary of donation 
   to each recipient from each date. The entries are ordered by recipients' id number and the date.
   
    The `medianvals_by_date.txt` generated from the example input above is:
@@ -178,13 +178,13 @@ With analysis, the package will output two files:
 #### Input
     
 The scripts yield each line(record) reading from the input file. Before yielding, 
-the input method confirms that
+the [input methods](https://github.com/OXPHOS/Insight_DonorFinder/blob/master/src/stream_input.py) gurantee that
   - The entry is valid (by checking column number)
   - The recipient ID (`CMTE_ID`) is valid, which starts by 'C' followed by 8 digits
   - The transaction amount is valid number
   - Whether the zip code or the transaction date is valid
   
-Also, the method converts transaction date and transaction amount to internal objects.
+Also, the method converts the transaction amount to internal objects.
    
 #### Output
 
@@ -198,30 +198,30 @@ The output files are header-free.
 
 #### Low level data structure
   
-  - **`linkedListNode`**
+  - **[`LinkedListNode`](https://github.com/OXPHOS/Insight_DonorFinder/blob/master/src/LinkedListNode.py)**
   
-    Node of a doubly linked list. Wraps the value of transaction amount and provides access to other `linkedListNode` objects with transaction amount just smaller and larger than the amount of current `linkedListNode` object given grouping rule. The class is used for median search and update.
+    Node of a doubly linked list. Wraps the value of transaction amount and provides access to other `LinkedListNode` objects with transaction amount just smaller and larger than the amount of current `LinkedListNode` object given grouping rule. The class is used for median search and update.
     
-  - **`infoByDomainBase` / (`infoByZip` / `infoByDate`)**
+  - **[`InfoByDomainBase`](https://github.com/OXPHOS/Insight_DonorFinder/blob/master/src/InfoTable.py#L4) / (`InfoByZip` / `InfoByDate`)**
   
-    Structure that saves median, counts and total dollar amount of contributions based on provided grouping rules. `infoByZip` and `infoByDate` are derived from `infoByDomainBase`.
+    Structure that saves median, counts and total dollar amount of contributions based on provided grouping rules. `InfoByZip` and `InfoByDate` are derived from `InfoByDomainBase`.
     
  #### High level data structure
-   - **`infoIndividual`**
+   - **[`InfoIndividual`](https://github.com/OXPHOS/Insight_DonorFinder/blob/master/src/InfoTable.py#L154)**
     
-     Basic data stroage structure in database that saves donation information received by each recipient. The object maintains two private dictionaries, with donations information grouped by zip codes and dates of the recipient (`infoByZip`/`infoByDate`).
+     Basic data stroage structure in database that saves donation information received by each recipient. The object maintains two private dictionaries, with donations information grouped by zip codes and dates of the recipient (`InfoByZip`/`InfoByDate`).
 
-   - **`nodeBase` / (`nodeByID` / `nodeByDate`)**
+   - **[`NodeBase`](https://github.com/OXPHOS/Insight_DonorFinder/blob/master/src/AVLTree.py#L1) / (`NodeByID` / `NodeByDate`)**
     
      Basic unit of self-balancing binary search tree, with the information of its children and its height in the tree. Allowing node `key_idx` comparison.
-      - `nodeById`: use `int`-casted recipient ID as `key_idx` and saves all the information of donations (AVL Tree of `nodeByDate`) to one recipient
-      - `nodeByDate`: use `int`-casted transaction date as `key_idx` and saves the information of donations to one recipient grouped by dates
+      - `NodeById`: use `int`-casted recipient ID as `key_idx` and saves all the information of donations (AVL Tree of `NodeByDate`) to one recipient
+      - `NodeByDate`: use `int`-casted transaction date as `key_idx` and saves the information of donations to one recipient grouped by dates
       
-   - **`AVLTree` / (`AVLTreeByID` / `AVLTreeByDate`)**
+   - **[`AVLTree`](https://github.com/OXPHOS/Insight_DonorFinder/blob/master/src/AVLTree.py#L114) / (`AVLTreeByID` / `AVLTreeByDate`)**
    
-      Self-balanced binary search tree structure with nodes derived from `nodeBase`. Allowing dynamic and fast insertion of new records. Two `AVLTree` instances are used in the scripts:
-      - **`AVLTreeByID`**: AVL Tree of each individual, ordered by recipient's ID numbers saved in `nodeByID`. Keys are converted to `int` for fast comparison. 
-      - **`AVLTreeByDate`**: AVL Tree of dates, ordered by transaction dates saved in `nodeByDate`.
+      Self-balanced binary search tree structure with nodes derived from `NodeBase`. Allowing dynamic and fast insertion of new records. Two `AVLTree` derived instances are used in the scripts:
+      - **`AVLTreeByID`**: AVL Tree of each individual, ordered by recipient's ID numbers saved in `NodeByID`. Keys are converted to `int` for fast comparison. 
+      - **`AVLTreeByDate`**: AVL Tree of dates, ordered by transaction dates saved in `NodeByDate`.
       
       The different derived classes only exist for different output requirement.
    
@@ -236,14 +236,14 @@ The output files are header-free.
                        string(zip code)
                    └── value: 
                        infoByZip
-                         └── int(median), int(count), int(total), 
-                             [linkedListNode(amount of each donation)]
+                         └── int(median), int(count), float(total), 
+                             [LinkedListNode(amount of each donation)]
                    └── key: 
                        string (transaction date)
                    └── value: 
                        infoByDate
-                         └── int(median), int(count), int(total), 
-                             [linkedListNode(amount of each donation)]
+                         └── int(median), int(count), float(total), 
+                             [LinkedListNode(amount of each donation)]
 
    - **Storage in self-balanced binary search tree**    
     
@@ -257,7 +257,7 @@ The output files are header-free.
                    └── value: 
                        infoByDate
                          └── int(median), int(count), float(total), 
-                             [linkedListNode(amount of each donation)]
+                             [LinkedListNode(amount of each donation)]
 
 ## Run instructions
 
@@ -283,3 +283,19 @@ No external libraries or dependencies are required for execution.
 The package is tested with Python 2.7.13 and Python 3.6.1.
   
 ## Testing
+
+Two types of testing are implemented for the package.
+
+### Module testing
+
+Tests are supported by Python's `unittest` framework. The tests covering all modules from the package can be found in [`./tests/`](https://github.com/OXPHOS/Insight_DonorFinder/tree/master/tests). The tests can be run by:
+
+`root~$ ./run-tests.sh`
+
+### Structure and I/O testing
+
+Enabled by Insight. Tests can be found under [`insight_testsuite/tests/`](https://github.com/OXPHOS/Insight_DonorFinder/tree/master/insight_testsuite/tests). To restrict the size of the package, not all test input/output files are uploaded.
+
+The tests can be run by：
+
+`insight_testsuite~$ ./run_tests.sh`
