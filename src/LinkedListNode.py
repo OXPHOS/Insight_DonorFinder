@@ -47,32 +47,39 @@ class LinkedListNode(object):
         if not new_node.get_value():
             raise TypeError("One or more nodes are invalid")
 
-        if old_node.get_value() < new_node.get_value():
-            # reaches the rightmost and
-            # new_node._val is the largest of the linked list
-            if not old_node.right:
-                old_node.right, new_node.left = new_node, old_node
+        while True:
+            if old_node.get_value() < new_node.get_value():
+                # reaches the rightmost and
+                # new_node._val is the largest of the linked list
+                if not old_node.right:
+                    old_node.right, new_node.left = new_node, old_node
+                    break
 
-            # old_node.right._val > new_node._val but old_node._val < new_node._val
-            elif direction == 'l':
-                old_node.right.left, new_node.right = new_node, old_node.right
-                old_node.right, new_node.left = new_node, old_node
+                # old_node.right._val > new_node._val but old_node._val < new_node._val
+                elif direction == 'l':
+                    old_node.right.left, new_node.right = new_node, old_node.right
+                    old_node.right, new_node.left = new_node, old_node
+                    break
 
-            # old_node.right._val < new_node._val and old_node._val < new_node._val
+                # old_node.right._val < new_node._val and old_node._val < new_node._val
+                # keep search by moving to right
+                else:
+                    old_node = old_node.right
             else:
-                LinkedListNode.insert_linkedlist_node(old_node.right, new_node, 'r')
-        else:
-            # if reaches the leftmost and
-            # new_node._val is the smallest of the linked list
-            if not old_node.left:
-                old_node.left, new_node.right = new_node, old_node
+                # if reaches the leftmost and
+                # new_node._val is the smallest of the linked list
+                if not old_node.left:
+                    old_node.left, new_node.right = new_node, old_node
+                    break
 
-            # old_node.left._val < new_node._val but old_node._val > new_node._val
-            elif direction == 'r':
-                old_node.left.right, new_node.left = new_node, old_node.left
-                old_node.left, new_node.right = new_node, old_node
+                # old_node.left._val < new_node._val but old_node._val > new_node._val
+                elif direction == 'r':
+                    old_node.left.right, new_node.left = new_node, old_node.left
+                    old_node.left, new_node.right = new_node, old_node
+                    break
 
-            # old_node.left._val > new_node._val and old_node._val > new_node._val
-            else:
-                LinkedListNode.insert_linkedlist_node(old_node.left, new_node, 'l')
+                # old_node.left._val > new_node._val and old_node._val > new_node._val
+                # keep searching my moving to left
+                else:
+                    old_node = old_node.left
 

@@ -5,8 +5,7 @@ from src.InfoTable import *
 
 class TestInfoByDomainBase(unittest.TestCase):
     def test_contructor(self):
-        node = LinkedListNode(4.7)
-        info = InfoByDomainBase(node)
+        info = InfoByDomainBase(4.7)
 
         self.assertEqual(info.get_median(), 5)  # round-up
         self.assertEqual(info.get_count(), 1)
@@ -16,8 +15,7 @@ class TestInfoByDomainBase(unittest.TestCase):
 
     def test_update_from_empty_info(self):
         info = InfoByDomainBase(None)
-        node = LinkedListNode(4.7)
-        info.update(node)
+        info.update(4.7)
 
         self.assertEqual(info.get_median(), 5)  # round-up
         self.assertEqual(info.get_count(), 1)
@@ -26,15 +24,11 @@ class TestInfoByDomainBase(unittest.TestCase):
         self.assertIs(info.get_median_left(), info.get_median_right())
 
     def test_update(self):
-        source_node = LinkedListNode(10)
-        info = InfoByDomainBase(source_node)
-
-        # Raise error if repeatedly adding one transaction
-        self.assertRaises(RuntimeError, lambda : info.update(source_node))
+        info = InfoByDomainBase(10)
 
         # Amount <= current median and amount <= median.left,
         # and median_left is median_right
-        info.update(LinkedListNode(5))
+        info.update(5)
         self.assertEqual(info.get_median(), 8)
         self.assertEqual(info.get_count(), 2)
         self.assertAlmostEqual(info.get_total(), 15)
@@ -43,7 +37,7 @@ class TestInfoByDomainBase(unittest.TestCase):
 
         # Amount > current median, and amount > median_right
         # and median_left is not median_right
-        info.update(LinkedListNode(30))
+        info.update(30)
         self.assertEqual(info.get_median(), 10)
         self.assertEqual(info.get_count(), 3)
         self.assertAlmostEqual(info.get_total(), 45)
@@ -52,7 +46,7 @@ class TestInfoByDomainBase(unittest.TestCase):
 
         # Amount > current median, and amount > median_right
         # and median_left is median_right
-        info.update(LinkedListNode(40))
+        info.update(40)
         self.assertEqual(info.get_median(), 20)
         self.assertEqual(info.get_count(), 4)
         self.assertAlmostEqual(info.get_total(), 85)
@@ -61,7 +55,7 @@ class TestInfoByDomainBase(unittest.TestCase):
 
         # Amount > current median, but amount <= median_right
         # and median_left is not median_right
-        info.update(LinkedListNode(25))
+        info.update(25)
         self.assertEqual(info.get_median(), 25)  # round-up
         self.assertEqual(info.get_count(), 5)
         self.assertAlmostEqual(info.get_total(), 110)
@@ -70,8 +64,8 @@ class TestInfoByDomainBase(unittest.TestCase):
 
         # Amount <= current median, but amount > median_left
         # and median_left is not median_right
-        info.update(LinkedListNode(10))
-        info.update(LinkedListNode(17))
+        info.update(10)
+        info.update(17)
         self.assertEqual(info.get_median(), 17)  # round-up
         self.assertEqual(info.get_count(), 7)
         self.assertAlmostEqual(info.get_total(), 137)
@@ -80,8 +74,8 @@ class TestInfoByDomainBase(unittest.TestCase):
 
         # Amount <= current median, and amount <= median_left
         # and median_left is not median_right
-        info.update(LinkedListNode(1))
-        info.update(LinkedListNode(2))
+        info.update(1)
+        info.update(2)
         self.assertEqual(info.get_median(), 10)  # round-up
         self.assertEqual(info.get_count(), 9)
         self.assertAlmostEqual(info.get_total(), 140)
@@ -89,7 +83,7 @@ class TestInfoByDomainBase(unittest.TestCase):
         self.assertAlmostEqual(info.get_median_right().get_value(), 10)
 
     def test_update_floats(self):
-        nodes = map(LinkedListNode, [1, 3.3, 2, 4.5, 1.8, 6])
+        nodes = [1, 3.3, 2, 4.5, 1.8, 6]
         info = InfoByDomainBase(nodes[0])
         for i in xrange(1, 6):
             info.update(nodes[i])
@@ -105,7 +99,7 @@ class TestInfoIndividual(unittest.TestCase):
     def test_contructor(self):
         zip = '90017'
         date = '01032017'
-        record = {'CMTE_ID': 'C00629618', 'TRANSACTION_AMT': LinkedListNode(40.0),
+        record = {'CMTE_ID': 'C00629618', 'TRANSACTION_AMT': 40.0,
                'ZIP_CODE': zip, 'TRANSACTION_DT': date}
         id = InfoIndividual(record)
 
@@ -120,8 +114,8 @@ class TestInfoIndividual(unittest.TestCase):
     def test_same_zip_update(self):
         id = 'C00629618'
         zip = '90017'
-        amt1 = LinkedListNode(40.0)
-        amt2 = LinkedListNode(60.5)
+        amt1 = 40.0
+        amt2 = 60.5
         record1 = {'CMTE_ID': id, 'TRANSACTION_AMT': amt1, 'ZIP_CODE': zip}
         record2 = {'CMTE_ID': id, 'TRANSACTION_AMT': amt2, 'ZIP_CODE': zip}
 
@@ -137,8 +131,8 @@ class TestInfoIndividual(unittest.TestCase):
         id = 'C00629618'
         zip1 = '90017'
         zip2 = '10021'
-        amt1 = LinkedListNode(40.0)
-        amt2 = LinkedListNode(60.5)
+        amt1 = 40.0
+        amt2 = 60.5
         record1 = {'CMTE_ID': id, 'TRANSACTION_AMT': amt1, 'ZIP_CODE': zip1}
         record2 = {'CMTE_ID': id, 'TRANSACTION_AMT': amt2, 'ZIP_CODE': zip2}
 
@@ -158,8 +152,8 @@ class TestInfoIndividual(unittest.TestCase):
     def test_same_date_update(self):
         id = 'C00629618'
         date = '01022017'
-        amt1 = LinkedListNode(40.0)
-        amt2 = LinkedListNode(60.5)
+        amt1 = 40.0
+        amt2 = 60.5
         record1 = {'CMTE_ID': id, 'TRANSACTION_AMT': amt1, 'ZIP_CODE': None,
                    'TRANSACTION_DT': date}
         record2 = {'CMTE_ID': id, 'TRANSACTION_AMT': amt2, 'ZIP_CODE': None,
@@ -177,8 +171,8 @@ class TestInfoIndividual(unittest.TestCase):
         id = 'C00629618'
         date1 = '01022017'
         date2 = '10212000'
-        amt1 = LinkedListNode(40.0)
-        amt2 = LinkedListNode(60.5)
+        amt1 = 40.0
+        amt2 = 60.5
         record1 = {'CMTE_ID': id, 'TRANSACTION_AMT': amt1, 'ZIP_CODE': None,
                    'TRANSACTION_DT': date1}
         record2 = {'CMTE_ID': id, 'TRANSACTION_AMT': amt2, 'ZIP_CODE': None,

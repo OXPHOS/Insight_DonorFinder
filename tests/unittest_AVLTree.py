@@ -1,6 +1,6 @@
 import unittest
 from src.AVLTree import *
-from src import InfoByDate, LinkedListNode
+from src import InfoByDate
 
 
 class TestAVLTree(unittest.TestCase):
@@ -8,7 +8,7 @@ class TestAVLTree(unittest.TestCase):
         date1 = '01022017'
         date2 = '10312000'
         date3 = '02292016'
-        info = InfoByDate(LinkedListNode(40.0))
+        info = InfoByDate(40.0)
         node1 = NodeByDate(date1, info)
         node2 = NodeByDate(date2, info)
         node3 = NodeByDate(date3, info)
@@ -21,7 +21,7 @@ class TestAVLTree(unittest.TestCase):
         id2 = 'C10629618'
         id3 = 'C00629618'
         date = '01022017'
-        info = InfoByDate(LinkedListNode(40.0))
+        info = InfoByDate(40.0)
         node1 = NodeByID(id1, date, info)
         node2 = NodeByID(id2, date, info)
         node3 = NodeByID(id3, date, info)
@@ -31,7 +31,7 @@ class TestAVLTree(unittest.TestCase):
     def test_nodeByID_update_on_same_date(self):
         id = 'C00629618'
         date = '01022017'
-        amt = LinkedListNode(40.0)
+        amt = 40.0
         info1 = InfoByDate(amt)  # 40, 1, 40.0
         node1 = NodeByID(id, date, info1)
 
@@ -41,7 +41,7 @@ class TestAVLTree(unittest.TestCase):
         self.assertEqual(res.get_count(), 1)
         self.assertAlmostEqual(res.get_total(), 40)
 
-        info2 = InfoByDate(LinkedListNode(60.5))  # 61, 1, 60.5
+        info2 = InfoByDate(60.5)  # 61, 1, 60.5
         info2.update(amt)  # 50, 2, 100.5
         node2 = NodeByID(id, date, info2)
         node1.update_node(node2)
@@ -56,9 +56,9 @@ class TestAVLTree(unittest.TestCase):
         id = 'C00629618'
         date1 = '01022017'
         date2 = '10312000'
-        info1 = InfoByDate(LinkedListNode(40.0))  # 40, 1, 40.0
+        info1 = InfoByDate(40.0)  # 40, 1, 40.0
         node1 = NodeByID(id, date1, info1)
-        info2 = InfoByDate(LinkedListNode(60.5))  # 61, 1, 60.5
+        info2 = InfoByDate(60.5)  # 61, 1, 60.5
         node2 = NodeByID(id, date2, info2)
         node1.update_node(node2)
 

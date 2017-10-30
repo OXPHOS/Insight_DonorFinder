@@ -15,24 +15,23 @@ class InfoByDomainBase(object):
         - self._median_left, self._median_right: objects of the doubly 
             linked list, as indexes for median position
 
-    :param amountLLN: linkedListNode object wrapping the amount
-        of current transaction
+    :param amount: float, the amount of current transaction
 
     """
 
-    def __init__(self, amountLLN):
-        if not amountLLN:
+    def __init__(self, amount):
+        if not amount:
             self._median = 0
             self._count = 0
             self._total = 0
             self._median_left = None
             self._median_right = None
         else:
-            self._median = int(round(amountLLN.get_value()))
+            self._median = int(round(amount))
             self._count = 1
-            self._total = amountLLN.get_value()
-            self._median_left = amountLLN
-            self._median_right = amountLLN
+            self._total = amount
+            self._median_left = LinkedListNode(amount)
+            self._median_right = self._median_left
 
     def get_median(self):
         return self._median
@@ -49,28 +48,23 @@ class InfoByDomainBase(object):
     def get_median_right(self):
         return self._median_right
 
-    def update(self, new_amountLLN):
+    def update(self, amount):
         """
         Update member variables based on new amount coming in
 
-        :param new_amountLLN: linkedListNode object wrapping the amount
-            of current transaction
+        :param new_amountLLN: float, the amount of current transaction
 
         """
+        new_amountLLN = LinkedListNode(amount)
+
         # Corner case: initiated empty InfoByDomain class
         if (not self._median_left) or (not self._median_right):
             self._median = int(round(new_amountLLN.get_value()))
             self._count = 1
             self._total = new_amountLLN.get_value()
-            self._median_left = new_amountLLN
-            self._median_right = new_amountLLN
+            self._median_left = LinkedListNode(new_amountLLN.get_value())
+            self._median_right = self._median_left
             return
-
-        # Avoid cyclic linked list
-        # TODO: make a transaction pool to avoid same transactions? Trade-off?
-        if self._median_left is new_amountLLN or \
-                self._median_right is new_amountLLN:
-            raise RuntimeError ("The same transaction cannot be added twice!")
 
         # insert new donation amount to the doubly linked list
         # update median position information

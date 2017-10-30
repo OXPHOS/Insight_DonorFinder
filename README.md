@@ -183,8 +183,6 @@ the [input methods](https://github.com/OXPHOS/Insight_DonorFinder/blob/master/sr
   - The recipient ID (`CMTE_ID`) is valid, which starts by 'C' followed by 8 digits
   - The transaction amount is valid number
   - Whether the zip code or the transaction date is valid
-  
-Also, the method converts the transaction amount to internal objects.
    
 #### Output
 
@@ -207,7 +205,7 @@ The output files are header-free.
     Structure that saves median, counts and total dollar amount of contributions based on provided grouping rules. `InfoByZip` and `InfoByDate` are derived from `InfoByDomainBase`.
     
  #### High level data structure
-   - **[`InfoIndividual`](https://github.com/OXPHOS/Insight_DonorFinder/blob/master/src/InfoTable.py#L154)**
+   - **[`InfoIndividual`](https://github.com/OXPHOS/Insight_DonorFinder/blob/master/src/InfoTable.py#L148)**
     
      Basic data stroage structure in database that saves donation information received by each recipient. The object maintains two private dictionaries, with donations information grouped by zip codes and dates of the recipient (`InfoByZip`/`InfoByDate`).
 

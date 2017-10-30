@@ -1,5 +1,4 @@
 import datetime
-from LinkedListNode import LinkedListNode
 
 INPUT_HEADER = {
     'CMTE_ID':0,
@@ -63,9 +62,9 @@ def stream_input(filename):
         # Validate that the transaction amount
         try:
             extracted_info['TRANSACTION_AMT'] = \
-                LinkedListNode(float(extracted_info['TRANSACTION_AMT']))
+                float(extracted_info['TRANSACTION_AMT'])
             # corner case: transaction amount = 0.0
-            if not extracted_info['TRANSACTION_AMT'].get_value():
+            if not extracted_info['TRANSACTION_AMT']:
                 continue
         except ValueError:
             continue

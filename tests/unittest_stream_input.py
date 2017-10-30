@@ -1,7 +1,6 @@
 import unittest
 import tempfile
 from src import stream_input
-from src import LinkedListNode
 
 
 class TestInputParser(unittest.TestCase):
@@ -80,13 +79,13 @@ class TestInputParser(unittest.TestCase):
 
         self.assertEqual(0, len(res))
 
-        # Check the instance of amount (LinkedListNode) from valid entry
+        # Check the transaction amount from valid entry
         fd = tempfile.NamedTemporaryFile(delete=False)
         fd.write('C00629618||||||IND||||900170235|||01032017|40||||||' + '\n')
         fd.close()
         for line in stream_input(fd.name):
             res = line
-        self.assertIsInstance(res['TRANSACTION_AMT'], LinkedListNode)
+        self.assertAlmostEqual(res['TRANSACTION_AMT'], 40)
 
     def test_zip_code(self):
         fd = tempfile.NamedTemporaryFile(delete=False)
@@ -155,6 +154,6 @@ class TestInputParser(unittest.TestCase):
         ref = {'CMTE_ID': 'C00629618', 'TRANSACTION_AMT': 40.0, 'ZIP_CODE': '90017',
                'TRANSACTION_DT': '01032017'}
         self.assertEqual(ref['CMTE_ID'], res[0]['CMTE_ID'])
-        self.assertEqual(ref['TRANSACTION_AMT'], res[0]['TRANSACTION_AMT'].get_value())
+        self.assertEqual(ref['TRANSACTION_AMT'], res[0]['TRANSACTION_AMT'])
         self.assertEqual(ref['ZIP_CODE'], res[0]['ZIP_CODE'])
         self.assertEqual(ref['TRANSACTION_DT'], res[0]['TRANSACTION_DT'])
