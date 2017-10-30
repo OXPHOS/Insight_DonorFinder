@@ -21,11 +21,33 @@ class InfoByDomainBase(object):
     """
 
     def __init__(self, amountLLN):
-        self._median = int(round(amountLLN.val))
-        self._count = 1
-        self._total = int(amountLLN.val)
-        self._median_left = amountLLN
-        self._median_right = amountLLN
+        if not amountLLN:
+            self._median = 0
+            self._count = 0
+            self._total = 0
+            self._median_left = None
+            self._median_right = None
+        else:
+            self._median = int(round(amountLLN.get_value()))
+            self._count = 1
+            self._total = amountLLN.get_value()
+            self._median_left = amountLLN
+            self._median_right = amountLLN
+
+    def get_median(self):
+        return self._median
+
+    def get_count(self):
+        return self._count
+
+    def get_total(self):
+        return self._total
+
+    def get_median_left(self):
+        return self._median_left
+
+    def get_median_right(self):
+        return self._median_right
 
     def update(self, new_amountLLN):
         """
@@ -35,39 +57,72 @@ class InfoByDomainBase(object):
             of current transaction
 
         """
+        # Corner case: initiated empty InfoByDomain class
+        if (not self._median_left) or (not self._median_right):
+            self._median = int(round(new_amountLLN.get_value()))
+            self._count = 1
+            self._total = new_amountLLN.get_value()
+            self._median_left = new_amountLLN
+            self._median_right = new_amountLLN
+            return
+
+        # Avoid cyclic linked list
+        # TODO: make a transaction pool to avoid same transactions? Trade-off?
+        if self._median_left is new_amountLLN or \
+                self._median_right is new_amountLLN:
+            raise RuntimeError ("The same transaction cannot be added twice!")
+
         # insert new donation amount to the doubly linked list
         # update median position information
-        if new_amountLLN.val > self._median:
+        if new_amountLLN.get_value() > self._median:
             LinkedListNode.insert_linkedlist_node(self._median_right, new_amountLLN, 'r')
-
-            # if odd numbers of donation present in the doubly linked list:
-            # Shift the median set by 1
-            if self._median_left is self._median_right:
-                self._median_left, self._median_right = (self._median_right, new_amountLLN)
-            elif new_amountLLN.val > self._median_right.val:
-                self._median_left, self._median_right = (self._median_right, self._median_right)
+            if new_amountLLN.get_value() > self._median_right.get_value():
+                # if odd numbers of donation present in the linked list before new node joining:
+                # Shift the median set by 1
+                if self._median_left is self._median_right:
+                    self._median_left, self._median_right = \
+                        self._median_right, self._median_right.right
+                # if even number of donation present in the linked list before new node joining:
+                # Overlap self._median_left and self._median_right
+                else:
+                    self._median_left, self._median_right = self._median_right, self._median_right
             else:
-                self._median_left, self._median_right = (new_amountLLN, new_amountLLN)
+                # Must be even number of donation present in the linked list before new node joining
+                self._median_left, self._median_right = new_amountLLN, new_amountLLN
+
         else:
             LinkedListNode.insert_linkedlist_node(self._median_left, new_amountLLN, 'l')
-            if self._median_left is self._median_right:
-                self._median_left, self._median_right = (new_amountLLN, self._median_left)
-            elif new_amountLLN.val < self._median_left.val:
-                self._median_left, self._median_right = (self._median_left, self._median_left)
+            if new_amountLLN.get_value() <= self._median_left.get_value():
+                # if odd numbers of donation present in the linked list before new node joining:
+                # Shift the median set by 1
+                if self._median_left is self._median_right:
+                    self._median_left, self._median_right = \
+                        self._median_left.left, self._median_left
+                # if even number of donation present in the linked list before new node joining:
+                # Overlap self._median_left and self._median_right
+                else:
+                    self._median_left, self._median_right = self._median_left, self._median_left
             else:
-                self._median_left, self._median_right = (new_amountLLN, new_amountLLN)
+                self._median_left, self._median_right = new_amountLLN, new_amountLLN
 
         # update count, median and total information
         self._count += 1
-        self._median = int(round((self._median_left.val + \
-                                  self._median_right.val) / 2))
-        self._total += int(new_amountLLN.val)
+        self._median = int(round(float(self._median_left.get_value() + \
+                                  self._median_right.get_value()) / 2))
+        self._total += new_amountLLN.get_value()
 
     def output(self):
         """
+        Only convert the total to int during output
         :return: median|count|total
         """
-        return '|'.join(map(str, [self._median, self._count, self._total])) + '\n'
+        return '|'.join(map(str, [self._median, self._count,
+                                  int(round(self._total))])) + '\n'
+
+    def __repr__(self):
+        return "InfoByDomainBase: " + ','.join(map(str, [
+            self._median, self._count, self._total,
+            self._median_left, self._median_right]))
 
 
 class InfoByZip(InfoByDomainBase):
@@ -112,15 +167,16 @@ class InfoIndividual(object):
 
     def __init__(self, line):
         self._id = line['CMTE_ID']
-        self._zip = line['ZIP_CODE']
-        self._date = line['TRANSACTION_DT']
         self._zip_dict = dict()
         self._date_dict = dict()
 
-        if self._zip:
-            self._zip_dict[self._zip] = InfoByZip(line['TRANSACTION_AMT'])
-        if self._date:
-            self._date_dict[self._date] = InfoByDate(line['TRANSACTION_AMT'])
+        try:
+            if line['ZIP_CODE']:
+                self._zip_dict[line['ZIP_CODE']] = InfoByZip(line['TRANSACTION_AMT'])
+            if line['TRANSACTION_DT']:
+                self._date_dict[line['TRANSACTION_DT']] = InfoByDate(line['TRANSACTION_AMT'])
+        except KeyError:
+            pass
 
     def has_zip(self, zipcode):
         """
@@ -148,16 +204,21 @@ class InfoIndividual(object):
         """
         return self._id
 
-    def get_date(self):
+    def get_zip_dict_entry(self, key):
         """
-        :return: object FECDate, transaction date (TRANSACTION_DT) 
+        return median, total and count information to specific recipient at specific area
+        :param key: string, zip code
+        :return: object infoByZip or None
         """
-        return self._date
+        try:
+            return self._zip_dict[key]
+        except KeyError:
+            return None
 
     def get_date_dict_entry(self, key):
         """
         return median, total and count information to specific recipient on specific day
-        :param key: object FECDate, transaction date
+        :param key: string, transaction date
         :return: object infoByDate or None
         """
         try:

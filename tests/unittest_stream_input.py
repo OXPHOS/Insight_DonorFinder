@@ -1,6 +1,6 @@
 import unittest
 import tempfile
-from src import find_political_donors
+from src import stream_input
 from src import LinkedListNode
 
 
@@ -12,7 +12,7 @@ class TestInputParser(unittest.TestCase):
         fd.close()
 
         res = []
-        for line in find_political_donors.stream_input(fd.name):
+        for line in stream_input(fd.name):
             res.append(line)
 
         self.assertEqual(0, len(res))
@@ -28,7 +28,7 @@ class TestInputParser(unittest.TestCase):
         fd.close()
 
         res = []
-        for line in find_political_donors.stream_input(fd.name):
+        for line in stream_input(fd.name):
             res.append(line)
 
         self.assertEqual(0, len(res))
@@ -42,7 +42,7 @@ class TestInputParser(unittest.TestCase):
         fd.close()
 
         res = []
-        for line in find_political_donors.stream_input(fd.name):
+        for line in stream_input(fd.name):
             res.append(line)
 
         self.assertEqual(0, len(res))
@@ -59,7 +59,7 @@ class TestInputParser(unittest.TestCase):
         fd.close()
 
         res = []
-        for line in find_political_donors.stream_input(fd.name):
+        for line in stream_input(fd.name):
             res.append(line)
 
         self.assertEqual(0, len(res))
@@ -75,7 +75,7 @@ class TestInputParser(unittest.TestCase):
         fd.close()
 
         res = []
-        for line in find_political_donors.stream_input(fd.name):
+        for line in stream_input(fd.name):
             res.append(line)
 
         self.assertEqual(0, len(res))
@@ -84,7 +84,7 @@ class TestInputParser(unittest.TestCase):
         fd = tempfile.NamedTemporaryFile(delete=False)
         fd.write('C00629618||||||IND||||900170235|||01032017|40||||||' + '\n')
         fd.close()
-        for line in find_political_donors.stream_input(fd.name):
+        for line in stream_input(fd.name):
             res = line
         self.assertIsInstance(res['TRANSACTION_AMT'], LinkedListNode)
 
@@ -101,7 +101,7 @@ class TestInputParser(unittest.TestCase):
         fd.close()
 
         res = []
-        for line in find_political_donors.stream_input(fd.name):
+        for line in stream_input(fd.name):
             res.append(line)
 
         size = 4
@@ -126,7 +126,7 @@ class TestInputParser(unittest.TestCase):
         fd.close()
 
         res = []
-        for line in find_political_donors.stream_input(fd.name):
+        for line in stream_input(fd.name):
             res.append(line)
 
         size = 3
@@ -148,13 +148,13 @@ class TestInputParser(unittest.TestCase):
         fd.close()
 
         res = []
-        for line in find_political_donors.stream_input(fd.name):
+        for line in stream_input(fd.name):
             res.append(line)
 
         self.assertEqual(1, len(res))
         ref = {'CMTE_ID': 'C00629618', 'TRANSACTION_AMT': 40.0, 'ZIP_CODE': '90017',
                'TRANSACTION_DT': '01032017'}
         self.assertEqual(ref['CMTE_ID'], res[0]['CMTE_ID'])
-        self.assertEqual(ref['TRANSACTION_AMT'], res[0]['TRANSACTION_AMT'].val)
+        self.assertEqual(ref['TRANSACTION_AMT'], res[0]['TRANSACTION_AMT'].get_value())
         self.assertEqual(ref['ZIP_CODE'], res[0]['ZIP_CODE'])
         self.assertEqual(ref['TRANSACTION_DT'], res[0]['TRANSACTION_DT'])

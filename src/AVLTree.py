@@ -35,6 +35,40 @@ class NodeBase(object):
         return self.key_idx <= other.key_idx
 
 
+class NodeByDate(NodeBase):
+    """
+    Structure that saves donation information from different dates 
+    to specific recipient 
+        - self.key: string (MMDDYYYY)
+        - self.key_idx: int (YYYYMMDD)
+        - self.val: object of infoByDate, saves median, count and total information
+
+    :param date: string, transaction date, to construct nested tree
+    :param info_by_date: object of InfoByDate, with information of median, count, 
+        and total, to construct nested tree
+    :param left: object of NodeBase or derived, left child of the node
+    :param right: object of NodeBase or derived, right child of the node
+    """
+    def __init__(self, date, info_by_date, left=None, right=None):
+        NodeBase.__init__(self, left, right)
+        self.key = date
+        self.key_idx = int(date[4:]+date[:4]) # Change to YYYYMMDD
+        self.val = info_by_date
+
+    def update_node(self, node):
+        self.val = node.val
+
+    def output_NodeByDate(self):
+        """
+        :return: key | val.output()
+        """
+        return self.key + '|' + self.val.output()
+
+    def __repr__(self):
+        return "\n\tkey: " + str(self.key) + '\n\tkey_idx:' + str(self.key_idx) + \
+               "\n\theight: " + str(self.height) + "\n\tval: " + str(self.val)
+
+
 class NodeByID(NodeBase):
     """
     Structure that saves information of each recipient
@@ -42,14 +76,15 @@ class NodeByID(NodeBase):
         - self.key_idx: int, extracted from self._key to simplify comparison
         - self.val: self-balanced binary search tree that saves donation
             information to specific recipient grouped by transaction date
-              
+
     :param id: string, id of the recipient
-    :param date: FECDate, transaction date, to construct nested tree
+    :param date: string, transaction date, to construct nested tree
     :param info_by_date: object of InfoByDate, with information of median, count, 
         and total, to construct nested tree
     :param left: object of NodeBase or derived, left child of the node
     :param right: object of NodeBase or derived, right child of the node
     """
+
     def __init__(self, id, date, info_by_date, left=None, right=None):
         NodeBase.__init__(self, left, right)
         self.key = id
@@ -74,40 +109,6 @@ class NodeByID(NodeBase):
     def __repr__(self):
         return "key: " + str(self.key) + '\nkey_idx:' + str(self.key_idx) + \
                "\nheight: " + str(self.height) + "\nval: " + str(self.val)
-
-
-class NodeByDate(NodeBase):
-    """
-    Structure that saves donation information from different dates 
-    to specific recipient 
-        - self.key: FECDate
-        - self.key_idx: FECDate
-        - self.val: object of infoByDate, saves median, count and total information
-
-    :param date: FECDate, transaction date, to construct nested tree
-    :param info_by_date: object of InfoByDate, with information of median, count, 
-        and total, to construct nested tree
-    :param left: object of NodeBase or derived, left child of the node
-    :param right: object of NodeBase or derived, right child of the node
-    """
-    def __init__(self, date, info_by_date, left=None, right=None):
-        NodeBase.__init__(self, left, right)
-        self.key = date
-        self.key_idx = int(date)
-        self.val = info_by_date
-
-    def update_node(self, node):
-        self.val = node.val
-
-    def output_NodeByDate(self):
-        """
-        :return: key | val.output()
-        """
-        return self.key + '|' + self.val.output()
-
-    def __repr__(self):
-        return "\n\tkey: " + str(self.key) + '\n\tkey_idx:' + str(self.key_idx) + \
-               "\n\theight: " + str(self.height) + "\n\tval: " + str(self.val)
 
 
 class AVLTree(object):
@@ -227,6 +228,23 @@ class AVLTree(object):
         return str(self.root)
 
 
+class AVLTreeByDate(AVLTree):
+    """
+    Specified self-balanced binary search tree with date as node key 
+    and nodeByDate as value
+    """
+    def output_TreeByDate(self):
+        stack = []
+        node = self.root
+        while node or stack:
+            while node:
+                stack.append(node)
+                node = node.left
+            node = stack.pop()
+            yield node.output_NodeByDate()
+            node = node.right
+
+
 class AVLTreeByID(AVLTree):
     """
     Specified self-balanced binary search tree with ID as node key 
@@ -242,21 +260,4 @@ class AVLTreeByID(AVLTree):
             node = stack.pop()
             for a in node.output_NodeByID():
                 yield a
-            node = node.right
-
-
-class AVLTreeByDate(AVLTree):
-    """
-    Specified self-balanced binary search tree with date as node key 
-    and nodeByDate as value
-    """
-    def output_TreeByDate(self):
-        stack = []
-        node = self.root
-        while node or stack:
-            while node:
-                stack.append(node)
-                node = node.left
-            node = stack.pop()
-            yield node.output_NodeByDate()
             node = node.right
