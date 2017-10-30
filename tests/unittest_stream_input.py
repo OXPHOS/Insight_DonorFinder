@@ -1,9 +1,11 @@
 import unittest
 import tempfile
-from src import stream_input
+from src import stream_input, ProgressBar
 
 
 class TestInputParser(unittest.TestCase):
+    ProgressBar.set_progress_bar(False)
+
     def test_column_check(self):
         # Valid entry requires 21 columns (empty ones counted)
         fd = tempfile.NamedTemporaryFile(delete=False)
